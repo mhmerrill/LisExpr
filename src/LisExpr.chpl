@@ -160,7 +160,7 @@ module LisExpr
     // operators over GenValue
     //////////////////////////////////////////
     
-    inline proc +(l: borrowed GenValue, r: borrowed GenValue): owned GenValue throws {
+    inline operator +(l: borrowed GenValue, r: borrowed GenValue): owned GenValue throws {
         select (l.vt, r.vt) {
             when (VT.I, VT.I) {return new owned Value(l.toValue(int).v + r.toValue(int).v);}
             when (VT.I, VT.R) {return new owned Value(l.toValue(int).v + r.toValue(real).v);}
@@ -170,7 +170,7 @@ module LisExpr
         }
     }
 
-    inline proc -(l: borrowed GenValue, r: borrowed GenValue): owned GenValue throws {
+    inline operator -(l: borrowed GenValue, r: borrowed GenValue): owned GenValue throws {
         select (l.vt, r.vt) {
             when (VT.I, VT.I) {return new owned Value(l.toValue(int).v - r.toValue(int).v);}
             when (VT.I, VT.R) {return new owned Value(l.toValue(int).v - r.toValue(real).v);}
@@ -180,7 +180,7 @@ module LisExpr
         }
     }
 
-    inline proc *(l: borrowed GenValue, r: borrowed GenValue): owned GenValue throws {
+    inline operator *(l: borrowed GenValue, r: borrowed GenValue): owned GenValue throws {
         select (l.vt, r.vt) {
             when (VT.I, VT.I) {return new owned Value(l.toValue(int).v * r.toValue(int).v);}
             when (VT.I, VT.R) {return new owned Value(l.toValue(int).v * r.toValue(real).v);}
@@ -190,7 +190,7 @@ module LisExpr
         }
     }
 
-    inline proc <(l: borrowed GenValue, r: borrowed GenValue): owned GenValue throws {
+    inline operator <(l: borrowed GenValue, r: borrowed GenValue): owned GenValue throws {
         select (l.vt, r.vt) {
             when (VT.I, VT.I) {return new owned Value((l.toValue(int).v < r.toValue(int).v):int);}
             when (VT.I, VT.R) {return new owned Value((l.toValue(int).v < r.toValue(real).v):int);}
@@ -200,7 +200,7 @@ module LisExpr
         }
     }
 
-    inline proc >(l: borrowed GenValue, r: borrowed GenValue): owned GenValue throws {
+    inline operator >(l: borrowed GenValue, r: borrowed GenValue): owned GenValue throws {
         select (l.vt, r.vt) {
             when (VT.I, VT.I) {return new owned Value((l.toValue(int).v > r.toValue(int).v):int);}
             when (VT.I, VT.R) {return new owned Value((l.toValue(int).v > r.toValue(real).v):int);}
@@ -210,7 +210,7 @@ module LisExpr
         }
     }
 
-    inline proc <=(l: borrowed GenValue, r: borrowed GenValue): owned GenValue throws {
+    inline operator <=(l: borrowed GenValue, r: borrowed GenValue): owned GenValue throws {
         select (l.vt, r.vt) {
             when (VT.I, VT.I) {return new owned Value((l.toValue(int).v <= r.toValue(int).v):int);}
             when (VT.I, VT.R) {return new owned Value((l.toValue(int).v <= r.toValue(real).v):int);}
@@ -220,7 +220,7 @@ module LisExpr
         }
     }
 
-    inline proc >=(l: borrowed GenValue, r: borrowed GenValue): owned GenValue throws {
+    inline operator >=(l: borrowed GenValue, r: borrowed GenValue): owned GenValue throws {
         select (l.vt, r.vt) {
             when (VT.I, VT.I) {return new owned Value((l.toValue(int).v >= r.toValue(int).v):int);}
             when (VT.I, VT.R) {return new owned Value((l.toValue(int).v >= r.toValue(real).v):int);}
@@ -230,7 +230,7 @@ module LisExpr
         }
     }
 
-    inline proc ==(l: borrowed GenValue, r: borrowed GenValue): owned GenValue throws {
+    inline operator ==(l: borrowed GenValue, r: borrowed GenValue): owned GenValue throws {
         select (l.vt, r.vt) {
             when (VT.I, VT.I) {return new owned Value((l.toValue(int).v == r.toValue(int).v):int);}
             when (VT.I, VT.R) {return new owned Value((l.toValue(int).v == r.toValue(real).v):int);}
@@ -240,7 +240,7 @@ module LisExpr
         }
     }
 
-    inline proc !=(l: borrowed GenValue, r: borrowed GenValue): owned GenValue throws {
+    inline operator !=(l: borrowed GenValue, r: borrowed GenValue): owned GenValue throws {
         select (l.vt, r.vt) {
             when (VT.I, VT.I) {return new owned Value((l.toValue(int).v != r.toValue(int).v):int);}
             when (VT.I, VT.R) {return new owned Value((l.toValue(int).v != r.toValue(real).v):int);}
@@ -297,7 +297,7 @@ module LisExpr
         /* lookup symbol and throw error if not found */
         proc lookup(name: string): borrowed GenValue throws {
             if (!tD.contains(name) || tab[name] == nil) {
-                throw new owned ErrorWithMsg("undefined symbol error (%t)".format(name));
+              throw new owned ErrorWithMsg("undefined symbol error " + name);
             }
             return tab[name]!;
         }
@@ -395,21 +395,21 @@ module LisExpr
     /* check to see if list value is a symbol otherwise throw error */
     inline proc checkSymbol(arg: borrowed GenListValue) throws {
         if (arg.lvt != LVT.Sym) {
-            throw new owned ErrorWithMsg("arg must be a symbol %t".format(arg));
+          throw new owned ErrorWithMsg("arg must be a symbol " + arg:string);
         }
     }
 
     /* check to see if size is greater than or equal to size otherwise throw error */
     inline proc checkGEqLstSize(lst: GenList, sz: int) throws {
         if (lst.size < sz) {
-            throw new owned ErrorWithMsg("list must be at least size %t %t".format(sz, lst));
+          throw new owned ErrorWithMsg("list must be at least size " + sz:string + " " + lst:string);
         }
     }
 
     /* check to see if size is equal to size otherwise throw error */
     inline proc checkEqLstSize(lst: GenList, sz: int) throws {
         if (lst.size != sz) {
-            throw new owned ErrorWithMsg("list must be size %t %t".format(sz, lst));
+          throw new owned ErrorWithMsg("list must be size" + sz:string + " " +  lst:string);
         }
     }
 
@@ -463,12 +463,12 @@ module LisExpr
                         if isTrue(eval(lst[1], env)) {return eval(lst[2], env);} else {return eval(lst[3], env);}
                     }
                     otherwise {
-                        throw new owned ErrorWithMsg("op not implemented %t".format(op));
+                        throw new owned ErrorWithMsg("op not implemented " + op);
                     }
                 }
             }
             otherwise {
-                throw new owned ErrorWithMsg("undefined ast node type %t".format(ast));
+              throw new owned ErrorWithMsg("undefined ast node type " + ast:string);
             }
         }
     }
