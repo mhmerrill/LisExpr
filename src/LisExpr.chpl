@@ -18,7 +18,7 @@ module LisExpr
     }
     
     /* type: list of genric list values */
-    type GenList = shared ListClass(owned GenListValue);
+    type GenList = owned ListClass(owned GenListValue);
 
     /* generic list value */
     class GenListValue
@@ -65,7 +65,9 @@ module LisExpr
         var lv: lvtype;
         
         /* initialize the value and the vtype */
-        proc init(val: ?vtype) {
+        // Use an `in` intent to deep copy the list class
+        // rather than just store a pointer to the old list
+        proc init(in val: ?vtype) {
             super.init(vtype);
             this.lvtype = vtype;
             this.lv = val;
