@@ -42,7 +42,7 @@ module LisExpr
         proc copy(): owned GenListValue throws {
           select (this.lvt) {
             when (LVT.Lst) {
-              return new owned ListValue(this.toListValue(Symbol).lv);
+              return new owned ListValue(this.toListValue(GenList).lv);
             }
             when (LVT.Sym) {
               return new owned ListValue(this.toListValue(Symbol).lv);
@@ -68,7 +68,6 @@ module LisExpr
         proc init(val: ?vtype) {
             super.init(vtype);
             this.lvtype = vtype;
-            // for non-lists, we can just initialize via assignment
             this.lv = val;
             this.complete();
         }
