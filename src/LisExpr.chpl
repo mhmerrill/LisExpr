@@ -18,7 +18,7 @@ module LisExpr
     }
     
     /* type: list of genric list values */
-    type GenList = shared ListClass(owned GenListValue)?;
+    type GenList = shared ListClass(owned GenListValue);
 
     /* generic list value */
     class GenListValue
@@ -327,7 +327,7 @@ module LisExpr
         if (token == "(") {
             var L = new GenList();
             while (tokens.first() != ")") {
-                L!.append(read_from_tokens(tokens));
+                L.append(read_from_tokens(tokens));
                 if (tokens.size == 0) then
                     throw new owned ErrorWithMsg("SyntaxError: unexpected EOF");
             }
@@ -364,14 +364,14 @@ module LisExpr
 
     /* check to see if size is greater than or equal to size otherwise throw error */
     inline proc checkGEqLstSize(lst: GenList, sz: int) throws {
-        if (lst!.size < sz) {
+        if (lst.size < sz) {
           throw new owned ErrorWithMsg("list must be at least size " + sz:string + " " + lst:string);
         }
     }
 
     /* check to see if size is equal to size otherwise throw error */
     inline proc checkEqLstSize(lst: GenList, sz: int) throws {
-        if (lst!.size != sz) {
+        if (lst.size != sz) {
           throw new owned ErrorWithMsg("list must be size" + sz:string + " " +  lst:string);
         }
     }
@@ -398,32 +398,32 @@ module LisExpr
                 // no empty lists allowed
                 checkGEqLstSize(lst,1);
                 // currently first list element must be a symbol of operator
-                checkSymbol(lst![0]);
-                var op = lst![0].toListValue(Symbol).lv;
+                checkSymbol(lst[0]);
+                var op = lst[0].toListValue(Symbol).lv;
                 select (op) {
-                    when "+"  {checkEqLstSize(lst,3); return eval(lst![1], env) + eval(lst![2], env);}
-                    when "-"  {checkEqLstSize(lst,3); return eval(lst![1], env) - eval(lst![2], env);}
-                    when "*"  {checkEqLstSize(lst,3); return eval(lst![1], env) * eval(lst![2], env);}
-                    when "<"  {checkEqLstSize(lst,3); return eval(lst![1], env) < eval(lst![2], env);}
-                    when ">"  {checkEqLstSize(lst,3); return eval(lst![1], env) > eval(lst![2], env);}
-                    when "<="  {checkEqLstSize(lst,3); return eval(lst![1], env) <= eval(lst![2], env);}
-                    when ">="  {checkEqLstSize(lst,3); return eval(lst![1], env) >= eval(lst![2], env);}
-                    when "==" {checkEqLstSize(lst,3); return eval(lst![1], env) == eval(lst![2], env);}
-                    when "!=" {checkEqLstSize(lst,3); return eval(lst![1], env) != eval(lst![2], env);}
-                    when "or" {checkEqLstSize(lst,3); return or(eval(lst![1], env), eval(lst![2], env));}
-                    when "and" {checkEqLstSize(lst,3); return and(eval(lst![1], env), eval(lst![2], env));}
-                    when "not" {checkEqLstSize(lst,2); return not(eval(lst![1], env));}
+                    when "+"  {checkEqLstSize(lst,3); return eval(lst[1], env) + eval(lst[2], env);}
+                    when "-"  {checkEqLstSize(lst,3); return eval(lst[1], env) - eval(lst[2], env);}
+                    when "*"  {checkEqLstSize(lst,3); return eval(lst[1], env) * eval(lst[2], env);}
+                    when "<"  {checkEqLstSize(lst,3); return eval(lst[1], env) < eval(lst[2], env);}
+                    when ">"  {checkEqLstSize(lst,3); return eval(lst[1], env) > eval(lst[2], env);}
+                    when "<="  {checkEqLstSize(lst,3); return eval(lst[1], env) <= eval(lst[2], env);}
+                    when ">="  {checkEqLstSize(lst,3); return eval(lst[1], env) >= eval(lst[2], env);}
+                    when "==" {checkEqLstSize(lst,3); return eval(lst[1], env) == eval(lst[2], env);}
+                    when "!=" {checkEqLstSize(lst,3); return eval(lst[1], env) != eval(lst[2], env);}
+                    when "or" {checkEqLstSize(lst,3); return or(eval(lst[1], env), eval(lst[2], env));}
+                    when "and" {checkEqLstSize(lst,3); return and(eval(lst[1], env), eval(lst[2], env));}
+                    when "not" {checkEqLstSize(lst,2); return not(eval(lst[1], env));}
                     when "set!" {
                         checkEqLstSize(lst,3);
-                        checkSymbol(lst![1]);
-                        var name = lst![1].toListValue(Symbol).lv;
+                        checkSymbol(lst[1]);
+                        var name = lst[1].toListValue(Symbol).lv;
                         // addEnrtry redefines values for already existing entries
-                        var gv = env.addEntry(name, eval(lst![2],env));
+                        var gv = env.addEntry(name, eval(lst[2],env));
                         return gv.copy(); // return value assigned to symbol
                     }
                     when "if" {
                         checkEqLstSize(lst,4);
-                        if isTrue(eval(lst![1], env)) {return eval(lst![2], env);} else {return eval(lst![3], env);}
+                        if isTrue(eval(lst[1], env)) {return eval(lst[2], env);} else {return eval(lst[3], env);}
                     }
                     otherwise {
                         throw new owned ErrorWithMsg("op not implemented " + op);
