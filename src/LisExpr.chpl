@@ -287,13 +287,7 @@ module LisExpr
       tokenize the prog
     */
     proc tokenize(line: string) {
-        // Want:
-        //   var l: list(string) = line.replace("("," ( ").replace(")"," ) ").split()
-        // Workaround (see https://github.com/chapel-lang/chapel/issues/16166):
-
-        var l: list(string);
-        for token in line.replace("("," ( ").replace(")"," ) ").split() do
-          l.append(token);
+        var l: list(string) = line.replace("("," ( ").replace(")"," ) ").split();
         return l;
     }
     
