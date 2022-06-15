@@ -12,8 +12,13 @@ module LisExpr
     
     type Symbol = string;
 
+    class ListClass {
+      type etype;
+      forwarding var l: list(etype);
+    }
+    
     /* type: list of genric list values */
-    type GenList = list(owned GenListValue);
+    type GenList = shared ListClass(owned GenListValue);
 
     /* generic list value */
     class GenListValue
@@ -37,8 +42,7 @@ module LisExpr
         proc copy(): owned GenListValue throws {
           select (this.lvt) {
             when (LVT.Lst) {
-              var copyList = copyOwnedList(this.toListValue(GenList).lv);
-              return new owned ListValue(copyList);
+              return new owned ListValue(this.toListValue(GenList).lv);
             }
             when (LVT.Sym) {
               return new owned ListValue(this.toListValue(Symbol).lv);
@@ -64,52 +68,10 @@ module LisExpr
         proc init(val: ?vtype) {
             super.init(vtype);
             this.lvtype = vtype;
-            // for non-lists, we can just initialize via assignment
-            if (!isListType(vtype)) {
-              this.lv = val;
-            }
+            this.lv = val;
             this.complete();
-            // for lists, we need a helper function; see copyOwnedList() for
-            // an explanation.
-            if (isListType(vtype)) {
-              try! copyOwnedList(this.lv, val);
-            }
         }
         
-    }
-
-    // Helpers to determine whether something is a list or not.
-    // Should we have to write these ourselves?  See
-    // https://github.com/chapel-lang/chapel/issues/16171
-    proc isListType(type t: list(?)) param {
-      return true;
-    }
-
-    proc isListType(type t) param {
-      return false;
-    }
-
-    // lists of non-nilable owned aren't copyable via assignment
-    // because it's not clear what would happen to the rhs 'owned'
-    // variables.  They'd transfer ownership which would make the
-    // original list useless; and even if that was OK, there's no good
-    // value to assign to the RHS list elements.  In the context of
-    // this work, we know we'd want to deep copy such lists, so the
-    // following two helpers do that in one-arg (+ return) and
-    // two-args forms.  For further discussion on this, see
-    // https://github.com/chapel-lang/chapel/issues/16167
-    proc copyOwnedList(src: list(?t, ?p)): list(t, p) throws {
-      var dst: list(t, p);
-      for item in src {
-        dst.append(item.copy());
-      }
-      return dst;
-    }
-
-    proc copyOwnedList(ref dst: list(?t,?p), src: list(t, ?p2)) throws {
-      for item in src {
-        dst.append(item.copy());
-      }
     }
 
     // allowed value types int and real
@@ -325,13 +287,7 @@ module LisExpr
       tokenize the prog
     */
     proc tokenize(line: string) {
-        // Want:
-        //   var l: list(string) = line.replace("("," ( ").replace(")"," ) ").split()
-        // Workaround (see https://github.com/chapel-lang/chapel/issues/16166):
-
-        var l: list(string);
-        for token in line.replace("("," ( ").replace(")"," ) ").split() do
-          l.append(token);
+        var l: list(string) = line.replace("("," ( ").replace(")"," ) ").split();
         return l;
     }
     
@@ -362,7 +318,7 @@ module LisExpr
 
         var token = tokens.pop(0);
         if (token == "(") {
-            var L: GenList;
+            var L = new GenList();
             while (tokens.first() != ")") {
                 L.append(read_from_tokens(tokens));
                 if (tokens.size == 0) then
