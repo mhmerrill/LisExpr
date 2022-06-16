@@ -31,6 +31,6 @@
 *.out
 *.app
 
-src/LisExpr
+src/TestLisExpr
 
 *.~*~
