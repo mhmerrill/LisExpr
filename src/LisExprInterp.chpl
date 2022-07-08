@@ -14,7 +14,7 @@ module LisExprInterp
     /*
       parse, check, and validate code and all symbols in the tokenized prog
     */ 
-    proc parse(line: string): owned GenListValue throws {
+    proc parse(line: string): GenListValue throws {
         // Want:
         //   return read_from_tokens(tokenize(line));
         //
@@ -28,7 +28,7 @@ module LisExprInterp
       parse throught the list of tokens generating the parse tree / AST
       as a list of atoms and lists
     */
-    proc read_from_tokens(ref tokens: list(string)): owned GenListValue throws {
+    proc read_from_tokens(ref tokens: list(string)): GenListValue throws {
         if (tokens.size == 0) then
             throw new owned Error("SyntaxError: unexpected EOF");
 
@@ -45,7 +45,7 @@ module LisExprInterp
                     throw new owned Error("SyntaxError: unexpected EOF");
             }
             tokens.pop(0); // pop off ")"
-            return new owned ListValue(L);
+            return new ListValue(L);
         }
         else if (token == ")") {
             throw new owned Error("SyntaxError: unexpected )");
@@ -56,20 +56,20 @@ module LisExprInterp
     }
     
     /* determine atom type and values */
-    proc atom(token: string): owned GenListValue {
+    proc atom(token: string): GenListValue {
         try { // try to interpret as an integer ?
-            return new owned ListValue(token:int); 
+            return new ListValue(token:int); 
         } catch {
             try { //try to interpret it as a real ?
-                return new owned ListValue(token:real);
+                return new ListValue(token:real);
             } catch { // return it as a symbol
-                return new owned ListValue(token);
+                return new ListValue(token);
             }
         }
     }
     
     /* check to see if list value is a symbol otherwise throw error */
-    inline proc checkSymbol(arg: borrowed GenListValue) throws {
+    inline proc checkSymbol(arg: BGenListValue) throws {
         if (arg.lvt != LVT.Sym) {
           throw new owned Error("arg must be a symbol " + arg:string);
         }
@@ -92,7 +92,7 @@ module LisExprInterp
     /*
       evaluate the expression
     */
-    proc eval(ast: borrowed GenListValue, env: borrowed Env): owned GenValue throws {
+    proc eval(ast: BGenListValue, env: borrowed Env): GenValue throws {
         select (ast.lvt) {
             when (LVT.Sym) {
                 var gv = env.lookup(ast.toListValue(Symbol).lv);
@@ -100,11 +100,11 @@ module LisExprInterp
             }
             when (LVT.I) {
                 var ret: int = ast.toListValue(int).lv;
-                return new owned Value(ret);
+                return new Value(ret);
             }
             when (LVT.R) {
                 var ret: real = ast.toListValue(real).lv;
-                return new owned Value(ret);
+                return new Value(ret);
             }
             when (LVT.Lst) {
                 ref lst = ast.toListValue(GenList).lv;
