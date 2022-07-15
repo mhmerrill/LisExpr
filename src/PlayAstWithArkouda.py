@@ -23,52 +23,58 @@ ak.connect()
 
 class ArkoudaVisitor(ast.NodeVisitor):
 
+    def __init__(self):
+        self.ret = ""
+
+    def visit_Add(self, node):
+        self.ret += "+"
+
+    def visit_Mult(self, node):
+        self.ret += "*"
+        
     def visit_BinOp(self, node):
-        ret = "("
-        ret += str(node.op)
-        ret += str(node.left)
-        ret += str(node.right)
-        ret += ")"
-        return ret
+        self.ret += "("
+        self.visit(node.op)
+        self.visit(node.left)
+        self.visit(node.right)
+        self.ret += ")"
+        print(self.ret)
+        
     
     def visit_Name(self, node):
-        ret = " " + node + " "
-        print(ret)
-        return ret
+        self.ret += " " + node.id + " "
+        print(self.ret)
+        
     
     def visit_arg(self, node):
-        ret = " " + node.arg + " "
-        print(ret)
-        return ret
+        self.ret += " " + node.arg + " "
+        print(self.ret)
+        
     
     def visit_arguments(self, node):
-        ret = " "
+        self.ret += "("
         for a in node.args:
-            ret += self.visit_arg(a) + " "
-        ret = "(" + ret + ")"
-        print(ret)
-        return ret
+            self.visit_arg(a)
+        self.ret += ")"
+        print(self.ret)
     
     def visit_Return(self, node):
-        ret = "("
-        ret += self.visit_BinOp(node.value)
-        ret += ")"
-        print(ret)
-        return ret
+        self.ret += "("
+        self.visit(node.value)
+        self.ret += ")"
+        print(self.ret)
     
     def visit_FunctionDef(self, node):
-        ret = "("
-        ret += node.name
-        ret += self.visit_arguments(node.args)
-        ret += self.visit_Return(node.body[0])
-        ret += ")"
-        print(ret)
-        return ret
+        self.ret += "("
+        self.ret += node.name
+        self.visit_arguments(node.args)
+        self.visit_Return(node.body[0])
+        self.ret += ")"
+        print(self.ret)
         
     def visit_Module(self, node):
-        ret = self.visit_FunctionDef(node.body[0])
-        print(ret)
-        return ret
+        self.visit_FunctionDef(node.body[0])
+        print(self.ret)
         
 
 
@@ -83,8 +89,8 @@ def arkouda_func(func):
         tree = ast.parse(source_code)
         print(ast.dump(tree, indent=4))
         visitor = ArkoudaVisitor()
-        ret = visitor.visit(tree)
-        return ret
+        visitor.visit(tree)
+        return visitor.ret
         
     return wrapper
 
