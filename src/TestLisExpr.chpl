@@ -74,12 +74,12 @@ module TestLisExpr
 
         // syntax error
         writeln(">>> Syntax error");
-        var prog = "(set! ans (if (and (>= elt 5) (<= elt 5)) (+ elt 100 (- elt 10)))";
+        var prog = "(:= ans (if (and (>= elt 5) (<= elt 5)) (+ elt 100 (- elt 10)))";
         test_parse_then_eval(prog);
 
         // syntax error
         writeln(">>> Syntax error");
-        prog = "(set! ans (if (and (>= elt 5 (<= elt 5)) (+ elt 100) (- elt 10)))";
+        prog = "(:= ans (if (and (>= elt 5 (<= elt 5)) (+ elt 100) (- elt 10)))";
         test_parse_then_eval(prog);
 
         // eval error
@@ -94,7 +94,7 @@ module TestLisExpr
 
         // this returns the answer from the eval and also sets "ans" in the env
         writeln(">>> ans symbol");
-        prog = "(set! ans (if (and (>= elt 5) (<= elt 5)) (+ elt 100) (- elt 10)))";
+        prog = "(:= ans (if (and (>= elt 5) (<= elt 5)) (+ elt 100) (- elt 10)))";
         test_parse_then_eval(prog);
 
         // this one only returns the answer from the eval
