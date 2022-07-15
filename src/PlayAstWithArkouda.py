@@ -43,7 +43,7 @@ class ArkoudaVisitor(ast.NodeVisitor):
         self.ret += " >"
 
     def visit_GtE(self, node):
-        self.ret += " <="
+        self.ret += " >="
 
     # Boolean Operators
     def visit_And(self, node):
@@ -66,6 +66,8 @@ class ArkoudaVisitor(ast.NodeVisitor):
 
     # Compare Op
     def visit_Compare(self, node):
+        if len(node.ops) != 1:
+            raise Exception("only one comparison operator allowed")
         self.ret += " ("
         self.visit(node.ops[0]) 
         self.visit(node.left)  # left?
@@ -77,8 +79,8 @@ class ArkoudaVisitor(ast.NodeVisitor):
     def visit_BoolOp(self, node):
         self.ret += " ("
         self.visit(node.op)
-        self.visit(node.values[0]) # left?
-        self.visit(node.values[1]) # right?
+        for v in node.values:
+            self.visit(v)
         self.ret += " )"
         print(self.ret)
 
@@ -91,7 +93,7 @@ class ArkoudaVisitor(ast.NodeVisitor):
         self.ret += " )"
         print(self.ret)
 
-    # If Expression (body) if (test) else (orelse)
+    # If Expression `(body) if (test) else (orelse)`
     def visit_IfExp(self, node):
         self.ret += " ( if"
         self.visit(node.test)
@@ -135,7 +137,7 @@ class ArkoudaVisitor(ast.NodeVisitor):
         self.ret += " )"
         print(self.ret)
 
-    # Return, `return v`
+    # Return, `return value`
     def visit_Return(self, node):
         self.ret += " ( return"
         self.visit(node.value)
@@ -176,7 +178,7 @@ def arkouda_func(func):
         visitor.visit(tree)
         print(visitor.ret)
 
-        # create linkage to arkouda server
+        # create linkage to arkouda server symboltable
         print(args)
         print(func.__annotations__.items())
         t = Template(visitor.ret) # make template
@@ -215,6 +217,11 @@ def my_filter2(v : ak.int64, x : ak.pdarray, y : ak.pdarray) -> ak.pdarray:
     (a := v*10)
     return ((y+1) if (not (x < a)) else (y-1))
 
+@arkouda_func
+def my_filter3(v : ak.int64, x : ak.pdarray, y : ak.pdarray) -> ak.pdarray:
+    (a := v*10)
+    return ((y+1) if (not (x < a) and (x >= 0)) else (y-1))
+
 # try it out
 ak.connect()
 x = ak.ones(10)
@@ -226,4 +233,7 @@ ret = my_filter(5,x,y)
 print(ret)
 
 ret = my_filter2(5,x,y)
+print(ret)
+
+ret = my_filter3(5,x,y)
 print(ret)
