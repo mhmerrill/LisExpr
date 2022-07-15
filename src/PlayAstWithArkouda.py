@@ -27,49 +27,49 @@ class ArkoudaVisitor(ast.NodeVisitor):
         self.ret = ""
 
     def visit_Add(self, node):
-        self.ret += "+"
+        self.ret += " +"
 
     def visit_Mult(self, node):
-        self.ret += "*"
+        self.ret += " *"
         
     def visit_BinOp(self, node):
-        self.ret += "("
+        self.ret += " ("
         self.visit(node.op)
         self.visit(node.left)
         self.visit(node.right)
-        self.ret += ")"
+        self.ret += " )"
         print(self.ret)
         
     
     def visit_Name(self, node):
-        self.ret += " " + node.id + " "
+        self.ret += " " + node.id
         print(self.ret)
         
     
     def visit_arg(self, node):
-        self.ret += " " + node.arg + " "
+        self.ret += " " + node.arg
         print(self.ret)
         
     
     def visit_arguments(self, node):
-        self.ret += "("
+        self.ret += " ("
         for a in node.args:
             self.visit_arg(a)
-        self.ret += ")"
+        self.ret += " )"
         print(self.ret)
     
     def visit_Return(self, node):
-        self.ret += "("
+        self.ret += " ("
         self.visit(node.value)
-        self.ret += ")"
+        self.ret += " )"
         print(self.ret)
     
     def visit_FunctionDef(self, node):
-        self.ret += "("
+        self.ret += " ("
         self.ret += node.name
         self.visit_arguments(node.args)
         self.visit_Return(node.body[0])
-        self.ret += ")"
+        self.ret += " )"
         print(self.ret)
         
     def visit_Module(self, node):
