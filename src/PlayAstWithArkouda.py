@@ -1,24 +1,12 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[11]:
-
 
 import inspect
 import ast
-import typeguard
 
 import numpy as np
 import arkouda as ak
-
-
-# In[12]:
-
-
-ak.connect()
-
-
-# In[106]:
 
 
 class ArkoudaVisitor(ast.NodeVisitor):
@@ -39,15 +27,14 @@ class ArkoudaVisitor(ast.NodeVisitor):
         self.visit(node.right)
         self.ret += " )"
         print(self.ret)
-        
-    
+            
     def visit_Name(self, node):
-        self.ret += " " + node.id
+        self.ret += " ${" + node.id + "}"
         print(self.ret)
         
     
     def visit_arg(self, node):
-        self.ret += " " + node.arg
+        self.ret += " ${" + node.arg + "}"
         print(self.ret)
         
     
@@ -59,14 +46,14 @@ class ArkoudaVisitor(ast.NodeVisitor):
         print(self.ret)
     
     def visit_Return(self, node):
-        self.ret += " ("
+        self.ret += " ( return"
         self.visit(node.value)
         self.ret += " )"
         print(self.ret)
     
     def visit_FunctionDef(self, node):
         self.ret += " ("
-        self.ret += node.name
+        self.ret += " " + node.name
         self.visit_arguments(node.args)
         self.visit_Return(node.body[0])
         self.ret += " )"
@@ -77,25 +64,41 @@ class ArkoudaVisitor(ast.NodeVisitor):
         print(self.ret)
         
 
-
-# In[107]:
-
-
 def arkouda_func(func):
     def wrapper(*args):
         import inspect
         import ast
+        from string import Template
+        
         source_code = inspect.getsource(func)
         tree = ast.parse(source_code)
         print(ast.dump(tree, indent=4))
         visitor = ArkoudaVisitor()
         visitor.visit(tree)
-        return visitor.ret
+        print(visitor.ret)
+
+        print(args)
+        print(func.__annotations__.items())
+        t = Template(visitor.ret) # make template
+        s = {} # make subs dict
+        keys = func.__annotations__.keys()
+        for name,arg in zip(keys,args):
+            if isinstance(arg, ak.pdarray):
+                print(name,func.__annotations__[name],arg.name)
+                s[name] = arg.name
+            elif isinstance(arg, float):
+                print(name,func.__annotations__[name],arg)
+                s[name] = arg
+            else:
+                raise Exception("unhandled arg type = " + str(func.__annotations__[name]))
+             
+        print(s)
+        ret = t.substitute(s)
+        print(ret)
+        
+        return ret
         
     return wrapper
-
-
-# In[108]:
 
 
 @arkouda_func
@@ -103,23 +106,10 @@ def axpy(a : ak.float64, x : ak.pdarray, y : ak.pdarray) -> ak.pdarray:
     return a * x + y
 
 
-# In[109]:
-
-
+ak.connect()
 x = ak.ones(10)
-y = ak.ones(10)
+y = ak.zeros(10)
 ret = axpy(5.0,x,y)
 print(ret)
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
 
 
