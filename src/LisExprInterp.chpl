@@ -114,19 +114,19 @@ module LisExprInterp
                 checkSymbol(lst[0]);
                 var op = lst[0].toListValue(Symbol).lv;
                 select (op) {
-                    when "+"  {checkEqLstSize(lst,3); return eval(lst[1], env) + eval(lst[2], env);}
-                    when "-"  {checkEqLstSize(lst,3); return eval(lst[1], env) - eval(lst[2], env);}
-                    when "*"  {checkEqLstSize(lst,3); return eval(lst[1], env) * eval(lst[2], env);}
-                    when "<"  {checkEqLstSize(lst,3); return eval(lst[1], env) < eval(lst[2], env);}
-                    when ">"  {checkEqLstSize(lst,3); return eval(lst[1], env) > eval(lst[2], env);}
+                    when "+"   {checkEqLstSize(lst,3); return eval(lst[1], env) + eval(lst[2], env);}
+                    when "-"   {checkEqLstSize(lst,3); return eval(lst[1], env) - eval(lst[2], env);}
+                    when "*"   {checkEqLstSize(lst,3); return eval(lst[1], env) * eval(lst[2], env);}
+                    when "=="  {checkEqLstSize(lst,3); return eval(lst[1], env) == eval(lst[2], env);}
+                    when "!="  {checkEqLstSize(lst,3); return eval(lst[1], env) != eval(lst[2], env);}
+                    when "<"   {checkEqLstSize(lst,3); return eval(lst[1], env) < eval(lst[2], env);}
                     when "<="  {checkEqLstSize(lst,3); return eval(lst[1], env) <= eval(lst[2], env);}
+                    when ">"   {checkEqLstSize(lst,3); return eval(lst[1], env) > eval(lst[2], env);}
                     when ">="  {checkEqLstSize(lst,3); return eval(lst[1], env) >= eval(lst[2], env);}
-                    when "==" {checkEqLstSize(lst,3); return eval(lst[1], env) == eval(lst[2], env);}
-                    when "!=" {checkEqLstSize(lst,3); return eval(lst[1], env) != eval(lst[2], env);}
-                    when "or" {checkEqLstSize(lst,3); return or(eval(lst[1], env), eval(lst[2], env));}
+                    when "or"  {checkEqLstSize(lst,3); return or(eval(lst[1], env), eval(lst[2], env));}
                     when "and" {checkEqLstSize(lst,3); return and(eval(lst[1], env), eval(lst[2], env));}
                     when "not" {checkEqLstSize(lst,2); return not(eval(lst[1], env));}
-                    when "set!" {
+                    when ":=" {
                         checkEqLstSize(lst,3);
                         checkSymbol(lst[1]);
                         var name = lst[1].toListValue(Symbol).lv;
