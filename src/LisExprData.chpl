@@ -2,6 +2,7 @@ module LisExprData
 {
 
     public use List;
+    public use Map;
     
     type Symbol = string;
 
@@ -251,41 +252,35 @@ module LisExprData
     /* environment is a dictionary of {string:GenValue} */
     class Env
     {
-        /* what data structure to use ??? assoc array over strings or a map ? */
-        var tD: domain(string);
-        var tab: [tD] GenValue?;
+        /* map of Symbol to GenValue */
+        var tab: map(Symbol, GenValue);
 
         /* add a new entry or set an entry to a new value */
         proc addEntry(name:string, val: ?t): BValue(t) throws {
             var entry = new Value(val);
-            if (!tD.contains(name)) {tD += name;};
-            ref tableEntry = tab[name];
-            tableEntry = entry;
-            return tableEntry!.borrow().toValue(t);
+            tab.addOrSet(name, entry);
+            return tab.getBorrowed(name).toValue(t);
         }
 
         /* add a new entry or set an entry to a new value */
         proc addEntry(name:string, in entry: GenValue): BGenValue throws {
-            if (!tD.contains(name)) {tD += name;};
-            ref tableEntry = tab[name];
-            tableEntry = entry;
-            return tableEntry!.borrow();
+            tab.addOrSet(name, entry);
+            return tab.getBorrowed(name);
         }
 
         /* lookup symbol and throw error if not found */
         proc lookup(name: string): BGenValue throws {
-            if (!tD.contains(name) || tab[name] == nil) {
+            if (!tab.contains(name)) {
               throw new owned Error("undefined symbol error " + name);
             }
-            return tab[name]!;
+            return tab.getBorrowed(name);
         }
 
         /* delete entry -- not sure if we need this */
         proc deleteEntry(name: string) {
             import IO.stdout;
-            if (tD.contains(name)) {
-                tab[name] = nil;
-                tD -= name;
+            if (tab.contains(name)) {
+                tab.remove(name);
             }
             else {
                 writeln("unkown symbol ",name);
