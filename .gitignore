@@ -34,3 +34,5 @@
 src/TestLisExpr
 
 *.~*~
+
+__pycache__/
