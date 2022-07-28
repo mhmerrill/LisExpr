@@ -126,18 +126,16 @@ module TestLisExpr
                 writeln(B);
             }
         }
-        catch errors: TaskErrors {
-            for e in errors {
-                // why does compile complain about not having a try her and not in the serial case???!
-                try! writeln((e: unmanaged Error).message());
+        catch e: Error {
+          if e.type == TaskErrors {
+            for err in e {
+              writeln(err.message());
             }
-            f = false;
+          } else {
+            writeln(e.message());
+          }
+          f = false;
         }
-        catch {
-            try! writeln("unkown exception!!!");
-            f = false;
-        }
-            
         
         return f;
     }
